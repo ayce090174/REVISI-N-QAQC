@@ -33,8 +33,8 @@ if seccion == "Ingreso":
         cantidad_uniones = st.number_input("Cantidad de uniones", min_value=1, max_value=50, value=1)
 
         registros = []
-        for i in range(cantidad_uniones):
-            st.markdown("---")
+   for i in range(cantidad_uniones):
+        st.markdown("---")
             st.subheader(f"Unión #{i+1}")
             col1, col2, col3 = st.columns(3)
             with col1:
