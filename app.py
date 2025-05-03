@@ -34,7 +34,7 @@ if seccion == "Ingreso":
 
         registros = []
         for i in range(cantidad_uniones):
-            st.markdown(f"---
+            st.markdown("---")
 🔧 Unión #{i+1}")
             col1, col2, col3 = st.columns(3)
             with col1:
