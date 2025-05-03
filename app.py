@@ -34,24 +34,25 @@ if seccion == "Ingreso":
 
         registros = []
         for i in range(cantidad_uniones):
-            st.markdown("---")
-st.subheader(f"Unión #{i+1}")
-col1,    col2,    col3 = st.columns(3)
-            with col1:
-                hora = st.time_input(f"Hora unión #{i+1}", value=time(8, 0), key=f"hora_{i}")
-            with col2:
-                estado = st.selectbox(f"Estado unión #{i+1}", ["Aprobado", "Rechazado", "Observado"], key=f"estado_{i}")
-            with col3:
-                observacion = st.text_input(f"Observación #{i+1}", key=f"obs_{i}")
-            
-            registros.append({
-                "Fecha": fecha,
-                "Hora": hora.strftime("%H:%M"),
-                "Operador": operador,
-                "Máquina": maquina,
-                "Unión": 1,
-                "Estado": estado,
-                "Observaciones": observacion
+    st.markdown("---")
+    st.subheader(f"Unión #{i+1}")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        hora = st.time_input(f"Hora unión #{i+1}", value=time(8, 0), key=f"hora_{i}")
+    with col2:
+        estado = st.selectbox(f"Estado unión #{i+1}", ["Aprobado", "Rechazado", "Observado"], key=f"estado_{i}")
+    with col3:
+        observacion = st.text_input(f"Observación #{i+1}", key=f"obs_{i}")
+
+    registros.append({
+        "Fecha": fecha,
+        "Hora": hora.strftime("%H:%M"),
+        "Operador": operador,
+        "Máquina": maquina,
+        "Unión": 1,
+        "Estado": estado,
+        "Observaciones": observacion
             })
 
         submitted = st.form_submit_button("Registrar")
