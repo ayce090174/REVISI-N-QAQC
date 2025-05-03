@@ -35,7 +35,7 @@ if seccion == "Ingreso":
         registros = []
         for i in range(cantidad_uniones):
             st.markdown("---")
-🔧 Unión #{i+1}")
+st.subheader(f"Unión #{i+1}")
             col1, col2, col3 = st.columns(3)
             with col1:
                 hora = st.time_input(f"Hora unión #{i+1}", value=time(8, 0), key=f"hora_{i}")
