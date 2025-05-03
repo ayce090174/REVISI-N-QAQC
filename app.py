@@ -61,17 +61,18 @@ st.subheader(f"Unión #{i+1}")
             st.success(f"✅ {len(registros)} uniones registradas exitosamente.")
 
 if seccion == "Reportes":
-    st.subheader("📑 Registros")
+    st.subheader("📋 Registros")
     st.dataframe(df)
 
     st.subheader("📊 Indicadores")
     col1, col2, col3 = st.columns(3)
+
     with col1:
         st.metric("Total de uniones", int(df["Unión"].astype(int).sum()) if not df.empty else 0)
     with col2:
-        st.metric("Aprobadas", df[df["Estado"] == "Aprobado"].shape[0])
+        st.metric("Aprobadas", int((df["Estado"] == "Aprobado").sum()) if not df.empty else 0)
     with col3:
-        st.metric("Rech./Obs.", df[df["Estado"].isin(["Rechazado", "Observado"])].shape[0])
+        st.metric("Rechazadas / Observadas", int((df["Estado"] != "Aprobado").sum()) if not df.empty else 0)
 
     if not df.empty:
         st.subheader("📈 Producción por Operador")
