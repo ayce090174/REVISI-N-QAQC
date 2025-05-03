@@ -24,7 +24,10 @@ def guardar_datos(df):
 df = cargar_datos()
 
 if seccion == "Ingreso":
-    with st.form("registro_form"):
+    if "submitted" not in st.session_state:
+        st.session_state.submitted = False
+
+    with st.form("registro_form", clear_on_submit=True):
         st.subheader("📋 Ingreso de Uniones Múltiples")
         fecha = st.date_input("Fecha", datetime.today())
         operador = st.text_input("Operador")
@@ -36,13 +39,14 @@ if seccion == "Ingreso":
             st.markdown("---")
             st.subheader(f"Unión #{i+1}")
             col1, col2, col3 = st.columns(3)
+
             with col1:
-                hora = st.time_input(f"Hora unión #{i+1}", value=time(8, 0), key=f"hora_{i}")
+                hora = st.time_input(f"Hora unión #{i+1}", value=time(8, 0), key=f"hora_{i}", step=60)
             with col2:
                 estado = st.selectbox(f"Estado unión #{i+1}", ["Aprobado", "Rechazado", "Observado"], key=f"estado_{i}")
             with col3:
                 observacion = st.text_input(f"Observación #{i+1}", key=f"obs_{i}")
-            
+
             registros.append({
                 "Fecha": fecha,
                 "Hora": hora.strftime("%H:%M"),
@@ -57,15 +61,25 @@ if seccion == "Ingreso":
         if submitted:
             df = pd.concat([df, pd.DataFrame(registros)], ignore_index=True)
             guardar_datos(df)
+            st.session_state.submitted = True
             st.success(f"✅ {len(registros)} uniones registradas exitosamente.")
 
 if seccion == "Reportes":
-    st.subheader("📋 Registros")
-    st.dataframe(df)
+    st.subheader("📋 Filtrar por Fecha")
+    fecha_filtro = st.date_input("Selecciona una fecha para filtrar")
+    df_filtrado = df[df["Fecha"] == str(fecha_filtro)] if not df.empty else pd.DataFrame()
+
+    st.subheader("📋 Registros filtrados")
+    st.dataframe(df_filtrado)
+
+    st.subheader("🗑️ Eliminar registros por fecha seleccionada")
+    if st.button("Eliminar registros de esta fecha"):
+        df = df[df["Fecha"] != str(fecha_filtro)]
+        guardar_datos(df)
+        st.success("Registros eliminados correctamente.")
 
     st.subheader("📊 Indicadores")
     col1, col2, col3 = st.columns(3)
-
     with col1:
         st.metric("Total de uniones", int(df["Unión"].astype(int).sum()) if not df.empty else 0)
     with col2:
@@ -112,7 +126,7 @@ if seccion == "Exportar":
             self.cell(0, 10, "Reporte QA/QC HDPE", ln=True, align="C")
             self.ln(10)
 
-    if st.button("📄 Descargar PDF con KPIs"):
+    if st.button("📄 Descargar PDF con KPIs y gráficos"):
         pdf = PDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
@@ -120,6 +134,15 @@ if seccion == "Exportar":
         pdf.cell(0, 10, f"Aprobadas: {df[df['Estado'] == 'Aprobado'].shape[0]}", ln=True)
         pdf.cell(0, 10, f"Rechazadas/Observadas: {df[df['Estado'].isin(['Rechazado','Observado'])].shape[0]}", ln=True)
         pdf.ln(10)
+
+        # Guardar gráfico de ejemplo
+        fig, ax = plt.subplots()
+        df.groupby("Operador")["Unión"].sum().plot(kind="bar", ax=ax)
+        ax.set_title("Producción por Operador")
+        graph_path = "temp_graph.png"
+        fig.savefig(graph_path)
+        pdf.image(graph_path, w=180)
+
         pdf.output("reporte_hdpe.pdf")
         with open("reporte_hdpe.pdf", "rb") as f:
             st.download_button("⬇️ Descargar PDF", f, file_name="reporte_hdpe.pdf", mime="application/pdf")
